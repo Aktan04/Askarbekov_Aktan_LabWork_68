@@ -1,0 +1,74 @@
+@model Chat
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Чат</h3>
+    </div>
+    <div class="card-body">
+        <div id="chatMessages">
+            @foreach (var message in Model.Messages.OrderBy(m => m.DateOfSend))
+            {
+                <div class="message @(message.UserId == ViewBag.TargetUserId ? "text-right" : "text-left")">
+                    <p>@message.Text</p>
+                    <small>@message.DateOfSend.ToString("dd.MM.yyyy HH:mm")</small>
+                </div>
+            }
+        </div>
+        <form id="chatForm" method="post">
+            <input type="hidden" name="chatId" value="@Model.Id" />
+            <div class="form-group">
+                <textarea name="messageText" id="messageText" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#chatForm').submit(function (event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SendMessage", "Chat")',
+                    data: $(this).serialize(),
+                    success: function () {
+                        loadChatMessages($('input[name="chatId"]').val());
+                        $('#messageText').val('');
+                    },
+                    error: function () {
+                        alert("Ошибка при отправке сообщения.");
+                    }
+                });
+            });
+        });
+
+        function loadChatMessages(chatId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetChatMessages", "Chat")',
+                data: { chatId: chatId },
+                success: function (response) {
+                    $('#chatMessages').html('');
+                    response.messages.forEach(function (message) {
+                        var alignment = message.userId == '@ViewBag.TargetUserId' ? 'text-right' : 'text-left';
+                        $('#chatMessages').append('<div class="message ' + alignment + '"><p>' + message.text + '</p><small>' + message.dateOfSend + '</small></div>');
+                    });
+                },
+                error: function () {
+                    alert("Ошибка при загрузке сообщений.");
+                }
+            });
+        }
+
+        // Загружаем сообщения сразу при загрузке страницы
+        loadChatMessages($('input[name="chatId"]').val());
+    </script>
+}

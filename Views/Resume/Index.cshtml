@@ -1,0 +1,53 @@
+@model List<Resume>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Мои резюме</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Ожидаемая зарплата</th>
+            <th>Дата обновления</th>
+            <th>Статус резюме</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var resume in Model)
+        {
+            <tr>
+                <td>@resume.Title</td>
+                <td>@resume.Category.Name</td>
+                <td>@resume.ExpectedSalary</td>
+                <td>@resume.LastUpdated.ToString()</td>
+                @if (resume.IsPublished)
+                {
+                    <td>Опубликовано</td>
+                }
+                else
+                {
+                    <td>Не опубликовано</td>
+                }
+                <td>
+                    <a href="@Url.Action("Details", new { id = resume.Id })" class="btn btn-info">Просмотр</a>
+                    <a href="@Url.Action("Edit", new { id = resume.Id })" class="btn btn-info">Редактировать</a>
+                    <a href="@Url.Action("Update", new { id = resume.Id })" class="btn btn-info">Обновить</a>
+                    @if (resume.IsPublished)
+                    {
+                        <a href="@Url.Action("PublishResume", new { id = resume.Id })" class="btn btn-info">Снять с публикации</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("PublishResume", new { id = resume.Id })" class="btn btn-info">Опубликовать</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

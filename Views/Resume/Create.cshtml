@@ -1,0 +1,198 @@
+@model Resume
+
+@{
+    ViewBag.Title = "Создать резюме";
+    Layout = "_Layout";
+}
+
+<h2>Создать резюме</h2>
+
+<form id="createResumeForm">
+    <div class="form-group">
+        <label for="Title">Название резюме</label>
+        <input type="text" class="form-control" id="Title" name="Title" required />
+    </div>
+    <div class="form-group">
+        <label for="CategoryId">Категория вакансии</label>
+        <select class="form-control" id="CategoryId" name="CategoryId" required>
+            @foreach (var category in ViewBag.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ExpectedSalary">Ожидаемый уровень заработной платы</label>
+        <input type="number" class="form-control" id="ExpectedSalary" name="ExpectedSalary" required/>
+    </div>
+    <div class="form-group">
+        <label for="Telegram">Telegram</label>
+        <input type="text" class="form-control" id="Telegram" name="Telegram" required/>
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" name="Email" required/>
+    </div>
+    <div class="form-group">
+        <label for="PhoneNumber">Номер телефона</label>
+        <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" required/>
+    </div>
+    <div class="form-group">
+        <label for="FacebookLink">Ссылка на Facebook</label>
+        <input type="text" class="form-control" id="FacebookLink" name="FacebookLink" />
+    </div>
+    <div class="form-group">
+        <label for="LinkedinLink">Ссылка на Linkedin</label>
+        <input type="text" class="form-control" id="LinkedinLink" name="LinkedinLink" />
+    </div>
+
+    <h4>Опыт работы</h4>
+    <div id="workExperiencesContainer"></div>
+    <button type="button" class="btn btn-secondary" onclick="addWorkExperience()">Добавить опыт работы</button>
+
+    <h4>Образование</h4>
+    <div id="educationsContainer"></div>
+    <button type="button" class="btn btn-secondary" onclick="addEducation()">Добавить образование</button>
+
+    <button type="submit" class="btn btn-primary">Создать</button>
+</form>
+
+@section Scripts {
+    @*
+    <script src="js/site.js"></script>
+    *@
+    <script>
+        let workExperienceCount = 0;
+        let educationCount = 0;
+
+        function addWorkExperience() {
+            const container = document.getElementById('workExperiencesContainer');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h5>Опыт работы ${++workExperienceCount}</h5>
+                <div class="form-group">
+                    <label>Название компании</label>
+                    <input type="text" class="form-control" name="workExperiences[${workExperienceCount - 1}].CompanyName" required/>
+                </div>
+                <div class="form-group">
+                    <label>Должность</label>
+                    <input type="text" class="form-control" name="workExperiences[${workExperienceCount - 1}].Position" required/>
+                </div>
+                <div class="form-group">
+                    <label>Обязанности</label>
+                    <textarea class="form-control" name="workExperiences[${workExperienceCount - 1}].Responsibilities" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="workExperiences[${workExperienceCount - 1}].StartDate" required    />
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="workExperiences[${workExperienceCount - 1}].EndDate" />
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function addEducation() {
+            const container = document.getElementById('educationsContainer');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h5>Образование ${++educationCount}</h5>
+                <div class="form-group">
+                    <label>Название учебного заведения</label>
+                    <input type="text" class="form-control" name="educations[${educationCount - 1}].Institution" required/>
+                </div>
+                <div class="form-group">
+                    <label>Степень</label>
+                    <input type="text" class="form-control" name="educations[${educationCount - 1}].Degree" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="educations[${educationCount - 1}].StartDate" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="educations[${educationCount - 1}].EndDate" />
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function collectFormData() {
+            const resume = {
+                Title: $('#Title').val(),
+                CategoryId: $('#CategoryId').val(),
+                ExpectedSalary: $('#ExpectedSalary').val(),
+                Telegram: $('#Telegram').val(),
+                Email: $('#Email').val(),
+                PhoneNumber: $('#PhoneNumber').val(),
+                FacebookLink: $('#FacebookLink').val(),
+                LinkedinLink: $('#LinkedinLink').val()
+            };
+
+            const workExperiences = [];
+            $('#workExperiencesContainer').children('div').each(function (index, element) {
+                const companyName = $(element).find('input[name^="workExperiences"]').filter('[name*="CompanyName"]').val();
+                const position = $(element).find('input[name^="workExperiences"]').filter('[name*="Position"]').val();
+                const responsibilities = $(element).find('textarea[name^="workExperiences"]').filter('[name*="Responsibilities"]').val();
+                const startDate = $(element).find('input[name^="workExperiences"]').filter('[name*="StartDate"]').val();
+                const endDate = $(element).find('input[name^="workExperiences"]').filter('[name*="EndDate"]').val() || null;
+
+                workExperiences.push({
+                    CompanyName: companyName,
+                    Position: position,
+                    Responsibilities: responsibilities,
+                    StartDate: startDate,
+                    EndDate: endDate
+                });
+            });
+
+            const educations = [];
+            $('#educationsContainer').children('div').each(function (index, element) {
+                const institution = $(element).find('input[name^="educations"]').filter('[name*="Institution"]').val();
+                const degree = $(element).find('input[name^="educations"]').filter('[name*="Degree"]').val();
+                const startDate = $(element).find('input[name^="educations"]').filter('[name*="StartDate"]').val();
+                const endDate = $(element).find('input[name^="educations"]').filter('[name*="EndDate"]').val() || null;
+
+                educations.push({
+                    Institution: institution,
+                    Degree: degree,
+                    StartDate: startDate,
+                    EndDate: endDate
+                });
+            });
+
+            return {
+                Resume: resume,
+                WorkExperiences: workExperiences,
+                Educations: educations
+            };
+        }
+
+        $(document).ready(function () {
+            $('#createResumeForm').submit(function (event) {
+                event.preventDefault();
+
+                const formData = collectFormData();
+
+                $.ajax({
+                    url: '/Resume/Create',
+                    type: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '/Resume/Index';
+                        } else {
+                            console.error('Ошибка при создании резюме:', response.error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Ошибка при отправке AJAX-запроса:', error);
+                    }
+                });
+            });
+        });
+    </script>
+}

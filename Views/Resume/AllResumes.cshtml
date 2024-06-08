@@ -1,0 +1,105 @@
+@model List<Resume>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Все резюме</h2>
+<form asp-action="AllResumes" method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-4 mb-2">
+            <label for="category" class="form-label">Категории</label>
+            <select id="category" name="category" class="form-select">
+                <option value="">Все</option>
+                @foreach (var categories in ViewBag.CategoryFromDb)
+                {
+                    <option value="@categories">@categories</option>
+                }
+            </select>
+        </div>
+        
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary my-2">Фильтровать</button>
+        </div>
+    </div>
+</form>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Категория</th>
+        <th>Ожидаемая зарплата</th>
+        <th>Дата обновления</th>
+        <th>Статус резюме</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var resume in Model)
+    {
+        <tr>
+            <td>@resume.Title</td>
+            <td>@resume.Category.Name</td>
+            <td>@resume.ExpectedSalary</td>
+            <td>@resume.LastUpdated.ToString()</td>
+            @if (resume.IsPublished)
+            {
+                <td>Опубликовано</td>
+            }
+            else
+            {
+                <td>Не опубликовано</td>
+            }
+            <td>
+                <a href="@Url.Action("Details", new { id = resume.Id })" class="btn btn-info">Просмотр</a>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vacationModal" data-resume-id="@resume.Id">Открыть чат</button>
+
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<!-- Модальное окно -->
+<div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vacationModalLabel">Выберите вакансию для обсуждения</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="chatForm" method="post" action="@Url.Action("OpenOrCreateChat", "Chat")">
+                    <input type="hidden" name="resumeId" id="resumeId" />
+                    <div class="form-group">
+                        <label for="vacationId">Вакансия:</label>
+                        <select id="vacationId" name="vacationId" class="form-control" required>
+                            @foreach (var vacation in ViewBag.Vacations)
+                            {
+                                <option value="@vacation.Id">@vacation.Title</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Создать чат</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+           $('#vacationModal').on('show.bs.modal', function (event) {
+               var button = $(event.relatedTarget); 
+               var resumeId = button.data('resume-id');
+               var modal = $(this);
+               modal.find('#resumeId').val(resumeId);
+           });
+    </script>
+    
+}

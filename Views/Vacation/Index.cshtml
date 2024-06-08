@@ -1,0 +1,54 @@
+@model List<Vacation>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Мои вакансии</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название вакансии</th>
+            <th>Дата обновления</th>
+            <th>Статус вакансии</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var job in Model)
+        {
+            <tr>
+                <td>@job.Title</td>
+                <td>@job.LastUpdated.ToString()</td>
+                @if (job.IsPublished)
+                {
+                    <td>Опубликовано</td>
+                }
+                else
+                {
+                    <td>Не опубликовано</td>
+                }
+                <td>
+                    <a href="@Url.Action("Edit", "Vacation", new { id = job.Id })" class="btn btn-primary">Редактировать</a>
+                    <form asp-action="UpdateDate" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@job.Id" />
+                        <button type="submit" class="btn btn-secondary">Обновить дату</button>
+                    </form>
+                    @if (job.IsPublished)
+                    {
+                        <a href="@Url.Action("PublishVacation", new { id = job.Id })" class="btn btn-info">Снять с публикации</a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("PublishVacation", new { id = job.Id })" class="btn btn-info">Опубликовать</a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Vacation")" class="btn btn-success">Создать вакансию</a>

@@ -1,0 +1,28 @@
+@model List<Chat>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Мои отклики</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Название вакансии</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var chat in Model)
+        {
+            <tr>
+                <td>@chat.Vacation.Title</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Chat" asp-route-chatId="@chat.Id">Перейти к чату</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

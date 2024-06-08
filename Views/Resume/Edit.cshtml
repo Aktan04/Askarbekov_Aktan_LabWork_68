@@ -1,0 +1,255 @@
+@model Hh.Services.ResumeData
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+
+<h2>Редактировать резюме</h2>
+
+<form id="editResumeForm">
+    <div class="form-group">
+        <label for="Title">Название резюме</label>
+        <input type="text" class="form-control" id="Title" name="Title" value="@Model.Resume.Title" required />
+    </div>
+    <div class="form-group">
+        <label for="CategoryId">Категория вакансии</label>
+        <select class="form-control" id="CategoryId" name="CategoryId" required>
+            @foreach (var category in ViewBag.Categories)
+            {
+                <option value="@category.Id" >@category.Name</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ExpectedSalary">Ожидаемый уровень заработной платы</label>
+        <input type="number" class="form-control" id="ExpectedSalary" name="ExpectedSalary" value="@Model.Resume.ExpectedSalary" required/>
+    </div>
+    <div class="form-group">
+        <label for="Telegram">Telegram</label>
+        <input type="text" class="form-control" id="Telegram" name="Telegram" value="@Model.Resume.Telegram" required/>
+    </div>
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <input type="email" class="form-control" id="Email" name="Email" value="@Model.Resume.Email" required/>
+    </div>
+    <div class="form-group">
+        <label for="PhoneNumber">Номер телефона</label>
+        <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" value="@Model.Resume.PhoneNumber" required/>
+    </div>
+    <div class="form-group">
+        <label for="FacebookLink">Ссылка на Facebook</label>
+        <input type="text" class="form-control" id="FacebookLink" name="FacebookLink" value="@Model.Resume.FacebookLink" />
+    </div>
+    <div class="form-group">
+        <label for="LinkedinLink">Ссылка на Linkedin</label>
+        <input type="text" class="form-control" id="LinkedinLink" name="LinkedinLink" value="@Model.Resume.LinkedinLink" />
+    </div>
+
+    <h4>Опыт работы</h4>
+    <div id="workExperiencesContainer">
+        @foreach (var workExperience in Model.WorkExperiences)
+        {
+            <div>
+                <h5>Опыт работы @(Model.WorkExperiences.IndexOf(workExperience) + 1)</h5>
+                <input type="hidden" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].Id" value="@workExperience.Id" />
+                <div class="form-group">
+                    <label>Название компании</label>
+                    <input type="text" class="form-control" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].CompanyName" value="@workExperience.CompanyName" required/>
+                </div>
+                <div class="form-group">
+                    <label>Должность</label>
+                    <input type="text" class="form-control" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].Position" value="@workExperience.Position" required/>
+                </div>
+                <div class="form-group">
+                    <label>Обязанности</label>
+                    <textarea class="form-control" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].Responsibilities" required>@workExperience.Responsibilities</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].StartDate" value="@workExperience.StartDate.ToString("yyyy-MM-dd")" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="workExperiences[@Model.WorkExperiences.IndexOf(workExperience)].EndDate" value="@workExperience.EndDate?.ToString("yyyy-MM-dd")" />
+                </div>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="addWorkExperience()">Добавить опыт работы</button>
+
+    <h4>Образование</h4>
+    <div id="educationsContainer">
+        @foreach (var education in Model.Educations)
+        {
+            <div>
+                <h5>Образование @(Model.Educations.IndexOf(education) + 1)</h5>
+                <input type="hidden" name="educations[@Model.Educations.IndexOf(education)].Id" value="@education.Id" />
+                <div class="form-group">
+                    <label>Название учебного заведения</label>
+                    <input type="text" class="form-control" name="educations[@Model.Educations.IndexOf(education)].Institution" value="@education.Institution" required/>
+                </div>
+                <div class="form-group">
+                    <label>Степень</label>
+                    <input type="text" class="form-control" name="educations[@Model.Educations.IndexOf(education)].Degree" value="@education.Degree" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="educations[@Model.Educations.IndexOf(education)].StartDate" value="@education.StartDate.ToString("yyyy-MM-dd")" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="educations[@Model.Educations.IndexOf(education)].EndDate" value="@education.EndDate?.ToString("yyyy-MM-dd")" />
+                </div>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="addEducation()">Добавить образование</button>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+@section Scripts {
+    <script>
+        let workExperienceCount = @Model.WorkExperiences.Count;
+        let educationCount = @Model.Educations.Count;
+
+        function addWorkExperience() {
+            const container = document.getElementById('workExperiencesContainer');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h5>Опыт работы ${++workExperienceCount}</h5>
+                <input type="hidden" name="workExperiences[${workExperienceCount - 1}].Id" value="0" />
+                <div class="form-group">
+                    <label>Название компании</label>
+                    <input type="text" class="form-control" name="workExperiences[${workExperienceCount - 1}].CompanyName" required/>
+                </div>
+                <div class="form-group">
+                    <label>Должность</label>
+                    <input type="text" class="form-control" name="workExperiences[${workExperienceCount - 1}].Position" required/>
+                </div>
+                <div class="form-group">
+                    <label>Обязанности</label>
+                    <textarea class="form-control" name="workExperiences[${workExperienceCount - 1}].Responsibilities" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="workExperiences[${workExperienceCount - 1}].StartDate" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="workExperiences[${workExperienceCount - 1}].EndDate" />
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function addEducation() {
+            const container = document.getElementById('educationsContainer');
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h5>Образование ${++educationCount}</h5>
+                <input type="hidden" name="educations[${educationCount - 1}].Id" value="0" />
+                <div class="form-group">
+                    <label>Название учебного заведения</label>
+                    <input type="text" class="form-control" name="educations[${educationCount - 1}].Institution" required/>
+                </div>
+                <div class="form-group">
+                    <label>Степень</label>
+                    <input type="text" class="form-control" name="educations[${educationCount - 1}].Degree" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата начала</label>
+                    <input type="date" class="form-control" name="educations[${educationCount - 1}].StartDate" required/>
+                </div>
+                <div class="form-group">
+                    <label>Дата окончания</label>
+                    <input type="date" class="form-control" name="educations[${educationCount - 1}].EndDate" />
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function collectFormData() {
+            const resume = {
+                Id: @Model.Resume.Id,
+                Title: $('#Title').val(),
+                CategoryId: $('#CategoryId').val(),
+                ExpectedSalary: $('#ExpectedSalary').val(),
+                Telegram: $('#Telegram').val(),
+                Email: $('#Email').val(),
+                PhoneNumber: $('#PhoneNumber').val(),
+                FacebookLink: $('#FacebookLink').val(),
+                LinkedinLink: $('#LinkedinLink').val()
+            };
+
+            const workExperiences = [];
+            $('#workExperiencesContainer').children('div').each(function (index, element) {
+                const id = $(element).find('input[name^="workExperiences"]').filter('[name*="Id"]').val();
+                const companyName = $(element).find('input[name^="workExperiences"]').filter('[name*="CompanyName"]').val();
+                const position = $(element).find('input[name^="workExperiences"]').filter('[name*="Position"]').val();
+                const responsibilities = $(element).find('textarea[name^="workExperiences"]').filter('[name*="Responsibilities"]').val();
+                const startDate = $(element).find('input[name^="workExperiences"]').filter('[name*="StartDate"]').val();
+                const endDate = $(element).find('input[name^="workExperiences"]').filter('[name*="EndDate"]').val() || null;
+
+                workExperiences.push({
+                    Id: id,
+                    CompanyName: companyName,
+                    Position: position,
+                    Responsibilities: responsibilities,
+                    StartDate: startDate,
+                    EndDate: endDate
+                });
+            });
+
+            const educations = [];
+            $('#educationsContainer').children('div').each(function (index, element) {
+                const id = $(element).find('input[name^="educations"]').filter('[name*="Id"]').val();
+                const institution = $(element).find('input[name^="educations"]').filter('[name*="Institution"]').val();
+                const degree = $(element).find('input[name^="educations"]').filter('[name*="Degree"]').val();
+                const startDate = $(element).find('input[name^="educations"]').filter('[name*="StartDate"]').val();
+                const endDate = $(element).find('input[name^="educations"]').filter('[name*="EndDate"]').val() || null;
+
+                educations.push({
+                    Id: id,
+                    Institution: institution,
+                    Degree: degree,
+                    StartDate: startDate,
+                    EndDate: endDate
+                });
+            });
+
+            return {
+                Resume: resume,
+                WorkExperiences: workExperiences,
+                Educations: educations
+            };
+        }
+
+        $(document).ready(function () {
+            $('#editResumeForm').submit(function (event) {
+                event.preventDefault();
+
+                const formData = collectFormData();
+
+                $.ajax({
+                    url: '/Resume/Edit',
+                    type: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '/Resume/Index';
+                        } else {
+                            console.error('Ошибка при редактировании резюме:', response.error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Ошибка при отправке AJAX-запроса:', error);
+                    }
+                });
+            });
+        });
+    </script>
+}

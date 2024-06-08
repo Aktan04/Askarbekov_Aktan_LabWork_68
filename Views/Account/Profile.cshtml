@@ -1,0 +1,39 @@
+@model User
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="profile-header text-center mb-4">
+                <div class="profile-avatar-container">
+                    <img src="@Model.Avatar" class="profile-avatar" alt="Аватар пользователя" style="max-width: 100%; height: auto;"/>
+                </div>
+                <h2 class="profile-name mt-3" id="profileUserName">@Model.UserName</h2>
+                <p class="profile-email"><i class="fas fa-envelope"></i> <span id="profileEmail">@Model.Email</span></p>
+            </div>
+            <div class="card profile-details">
+                <div class="card-body">
+                    <h5 class="card-title">Информация о пользователе</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Имя:</strong> <span id="userUserName">@Model.UserName</span></li>
+                        <li class="list-group-item"><strong>Никнейм:</strong> <span id="userNickName">@Model.NickName</span></li>
+                        <li class="list-group-item"><strong>Email:</strong> <span id="userEmail">@Model.Email</span></li>
+                    </ul>
+                    <button class="btn btn-primary mt-3 edit-profile-btn"
+                            data-user-id="@Model.Id"
+                            data-user-name="@Model.UserName"
+                            data-user-nickname="@Model.NickName"
+                            data-user-email="@Model.Email"
+                            data-user-avatar="@Model.Avatar"
+                    >Редактировать профиль</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{ Html.RenderPartial("_Edit", new User()); }

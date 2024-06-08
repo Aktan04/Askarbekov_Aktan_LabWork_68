@@ -1,0 +1,60 @@
+@model Hh.ViewModels.VacationDetailViewModel
+
+@{
+    ViewBag.Title = "Детали вакансии";
+    Layout = "_Layout";
+}
+
+<h2>@Model.Vacation.Title</h2>
+
+<p><strong>Зарплата:</strong> @Model.Vacation.Salary</p>
+<p><strong>Требования:</strong> @Model.Vacation.Requirement</p>
+<p><strong>Опыт:</strong> @Model.Vacation.ExperienceFrom - @Model.Vacation.ExperienceTo лет</p>
+<p><strong>Дата обновления:</strong> @Model.Vacation.LastUpdated.ToString("dd.MM.yyyy")</p>
+
+<form id="applyForm" method="post">
+    <input type="hidden" name="vacationId" value="@Model.Vacation.Id" />
+    <div class="form-group">
+        <label for="resumeId">Выберите резюме для отклика:</label>
+        <select name="resumeId" class="form-control" required>
+            @foreach (var resume in Model.UserResumes)
+            {
+                var chatExists = Model.Chats.Any(c => c.ResumeId == resume.Id);
+                if (chatExists)
+                {
+                    <option value="@resume.Id" disabled>@resume.Title (уже откликнулись)</option>
+                }
+                else
+                {
+                    <option value="@resume.Id">@resume.Title</option>
+                }
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Откликнуться</button>
+</form>
+
+<form asp-action="Delete" asp-route-id="@Model.Vacation.Id" method="post" class="mt-3">
+    <button type="submit" class="btn btn-danger">Удалить вакансию</button>
+</form>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#applyForm').submit(function (event) {
+                event.preventDefault();
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Apply", "Vacation")',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        window.location.href = response.redirectUrl;
+                    },
+                    error: function (response) {
+                        alert("Ошибка при отклике.");
+                    }
+                });
+            });
+        });
+    </script>
+}
